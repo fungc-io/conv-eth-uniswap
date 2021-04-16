@@ -96,7 +96,38 @@ export function handleBurn(event: Burn): void {}
 export function handleMint(event: Mint): void {}
 
 export function handleSwap(event: Swap): void {
-
+  let amount0In = convertTokenToDecimal(event.params.amount0In)
+  let amount1In = convertTokenToDecimal(event.params.amount1In)
+  let amount0Out = convertTokenToDecimal(event.params.amount0Out)
+  let amount1Out = convertTokenToDecimal(event.params.amount1Out)
+  let transaction = Transaction.load(event.transaction.hash.toHexString())
+  if (transaction === null) {
+    transaction = new Transaction(event.transaction.hash.toHexString())
+    transaction.blockNumber = event.block.number
+    transaction.timestamp = event.block.timestamp
+    transaction.swaps = []
+  }
+  let swaps = transaction.swaps
+  let swap = new SwapEvent(
+    event.transaction.hash
+      .toHexString()
+      .concat('-')
+      .concat(BigInt.fromI32(swaps.length).toString())
+  )
+  swap.timestamp = transaction.timestamp
+  swap.transaction = transaction.id
+  swap.sender = event.params.sender
+  swap.amount0In = amount0In
+  swap.amount1In = amount1In
+  swap.amount0Out = amount0Out
+  swap.amount1Out = amount1Out
+  swap.to = event.params.to
+  swap.from = event.transaction.from
+  swap.logIndex = event.logIndex
+  swap.save()
+  swaps.push(swap.id)
+  transaction.swaps = swaps
+  transaction.save()
 }
 
 export function handleSync(event: Sync): void {

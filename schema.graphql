@@ -9,6 +9,7 @@ type Transaction @entity {
   id: ID! # txn hash
   blockNumber: BigInt!
   timestamp: BigInt!
+  swaps: [Swap]!
 }
 
 type Mint @entity {
@@ -77,7 +78,7 @@ type Swap @entity {
   logIndex: BigInt
 
   # derived info
-  amountUSD: BigDecimal!
+  # amountUSD: BigDecimal!
 }
 
 type Sync @entity {

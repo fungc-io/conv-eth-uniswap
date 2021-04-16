@@ -117,6 +117,15 @@ export class Transaction extends Entity {
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
   }
+
+  get swaps(): Array<string | null> {
+    let value = this.get("swaps");
+    return value.toStringArray();
+  }
+
+  set swaps(value: Array<string | null>) {
+    this.set("swaps", Value.fromStringArray(value));
+  }
 }
 
 export class Mint extends Entity {
@@ -634,15 +643,6 @@ export class Swap extends Entity {
     } else {
       this.set("logIndex", Value.fromBigInt(value as BigInt));
     }
-  }
-
-  get amountUSD(): BigDecimal {
-    let value = this.get("amountUSD");
-    return value.toBigDecimal();
-  }
-
-  set amountUSD(value: BigDecimal) {
-    this.set("amountUSD", Value.fromBigDecimal(value));
   }
 }
 
