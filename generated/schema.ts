@@ -126,6 +126,24 @@ export class Transaction extends Entity {
   set swaps(value: Array<string | null>) {
     this.set("swaps", Value.fromStringArray(value));
   }
+
+  get mints(): Array<string | null> {
+    let value = this.get("mints");
+    return value.toStringArray();
+  }
+
+  set mints(value: Array<string | null>) {
+    this.set("mints", Value.fromStringArray(value));
+  }
+
+  get burns(): Array<string | null> {
+    let value = this.get("burns");
+    return value.toStringArray();
+  }
+
+  set burns(value: Array<string | null>) {
+    this.set("burns", Value.fromStringArray(value));
+  }
 }
 
 export class Mint extends Entity {
@@ -174,24 +192,6 @@ export class Mint extends Entity {
 
   set timestamp(value: BigInt) {
     this.set("timestamp", Value.fromBigInt(value));
-  }
-
-  get to(): Bytes {
-    let value = this.get("to");
-    return value.toBytes();
-  }
-
-  set to(value: Bytes) {
-    this.set("to", Value.fromBytes(value));
-  }
-
-  get liquidity(): BigDecimal {
-    let value = this.get("liquidity");
-    return value.toBigDecimal();
-  }
-
-  set liquidity(value: BigDecimal) {
-    this.set("liquidity", Value.fromBigDecimal(value));
   }
 
   get sender(): Bytes | null {

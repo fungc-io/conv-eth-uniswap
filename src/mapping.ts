@@ -16,17 +16,7 @@ import {
 	Swap as SwapEvent,
 } from "../generated/schema";
 
-
-let ZERO_BI = BigInt.fromI32(0)
-let ONE_BI = BigInt.fromI32(1)
-let ZERO_BD = BigDecimal.fromString('0')
-let ONE_BD = BigDecimal.fromString('1')
-let BI_18 = BigInt.fromI32(18)
-let BD_18 = BigDecimal.fromString('1000000000000000000')
-
-function convertTokenToDecimal(tokenAmount:BigInt):BigDecimal{
-  return tokenAmount.toBigDecimal().div(BD_18)
-}
+import {convertTokenToDecimal, PAIR_ID} from './helpers';
 
 export function handleApproval(event: Approval): void {
 	// Entities can be loaded from the store using a string ID; this ID
@@ -91,9 +81,41 @@ export function handleApproval(event: Approval): void {
 	// - contract.transferFrom(...)
 }
 
-export function handleBurn(event: Burn): void {}
+export function handleBurn(event: Burn): void {
+  let amount0 = convertTokenToDecimal(event.params.amount0)
+  let amount1 = convertTokenToDecimal(event.params.amount1)
+  
+}
 
-export function handleMint(event: Mint): void {}
+export function handleMint(event: Mint): void {
+  let amount0 = convertTokenToDecimal(event.params.amount0)
+  let amount1 = convertTokenToDecimal(event.params.amount1)
+  let sender = event.params.sender
+  let transaction = Transaction.load(event.transaction.hash.toHexString())
+  if (transaction === null) {
+    transaction = new Transaction(event.transaction.hash.toHexString())
+    transaction.blockNumber = event.block.number
+    transaction.timestamp = event.block.timestamp
+    transaction.swaps = []
+    transaction.mints = []
+    transaction.burns = []
+  }
+  let mints = transaction.mints
+  let mint = new MintEvent(event.transaction.hash
+    .toHexString()
+    .concat('-')
+    .concat(BigInt.fromI32(mints.length).toString()))
+  mint.amount0 = amount0
+  mint.amount1 = amount1
+  mint.sender = sender
+  mint.logIndex = event.logIndex
+  mint.transaction = transaction.id
+  mint.timestamp = transaction.timestamp
+  mints.push(mint.id)
+  transaction.mints = mints
+  transaction.save()
+  mint.save()
+}
 
 export function handleSwap(event: Swap): void {
   let amount0In = convertTokenToDecimal(event.params.amount0In)
@@ -106,6 +128,8 @@ export function handleSwap(event: Swap): void {
     transaction.blockNumber = event.block.number
     transaction.timestamp = event.block.timestamp
     transaction.swaps = []
+    transaction.mints = []
+    transaction.burns = []
   }
   let swaps = transaction.swaps
   let swap = new SwapEvent(
@@ -138,4 +162,5 @@ export function handleSync(event: Sync): void {
   sync.save()
 }
 
-export function handleTransfer(event: Transfer): void {}
+export function handleTransfer(event: Transfer): void {
+}

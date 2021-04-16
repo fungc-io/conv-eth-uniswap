@@ -10,6 +10,8 @@ type Transaction @entity {
   blockNumber: BigInt!
   timestamp: BigInt!
   swaps: [Swap]!
+  mints: [Mint]!
+  burns: [Burn]!
 }
 
 type Mint @entity {
@@ -19,8 +21,8 @@ type Mint @entity {
   timestamp: BigInt! # need this to pull recent txns for specific token or pair
 
   # populated from the primary Transfer event
-  to: Bytes!
-  liquidity: BigDecimal!
+  # to: Bytes!
+  # liquidity: BigDecimal!
 
   # populated from the Mint event
   sender: Bytes
