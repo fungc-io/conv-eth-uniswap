@@ -23,6 +23,27 @@ export function handleApproval(event: Approval): void {}
 export function handleBurn(event: Burn): void {
   let amount0 = convertTokenToDecimal(event.params.amount0)
   let amount1 = convertTokenToDecimal(event.params.amount1)
+  let sender = event.params.sender
+  let transaction = Transaction.load(event.transaction.hash.toHexString())
+  let pair = Pair.load(PAIR_ID)
+  let amountUSD = amount1.times(pair.token0Price).plus(amount0).times(getEthPriceUSDT())
+  if (transaction === null) transaction = createNewTransaction(event)
+  let burns = transaction.burns
+  let burn = new BurnEvent(event.transaction.hash
+    .toHexString()
+    .concat('-')
+    .concat(BigInt.fromI32(burns.length).toString()))
+  burn.amount0 = amount0
+  burn.amount1 = amount1
+  burn.sender = sender
+  burn.logIndex = event.logIndex
+  burn.transaction = transaction.id
+  burn.timestamp = transaction.timestamp
+  burn.amountUSD = amountUSD
+  burns.push(burn.id)
+  transaction.burns = burns
+  transaction.save()
+  burn.save()
   updateHourData(event)
 }
 
