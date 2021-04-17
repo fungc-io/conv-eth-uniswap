@@ -13,12 +13,12 @@ type Mint @entity {
   transaction: Transaction!
   timestamp: BigInt!
 
-  # populated from the Mint event
   sender: Bytes!
   amount0: BigDecimal!
   amount1: BigDecimal!
   logIndex: BigInt!
-  # derived amount based on available prices of tokens
+
+  # derived
   amountUSD: BigDecimal!
 }
 
@@ -28,13 +28,12 @@ type Burn @entity {
   transaction: Transaction!
   timestamp: BigInt!
 
-  # populated from the Burn event
   sender: Bytes!
   amount0: BigDecimal!
   amount1: BigDecimal!
   logIndex: BigInt!
 
-  # derived amount based on available prices of tokens
+  # derived
   amountUSD: BigDecimal!
 }
 
@@ -42,9 +41,8 @@ type Swap @entity {
   # transaction hash + "-" + index in swaps Transaction array
   id: ID!
   transaction: Transaction!
-  timestamp: BigInt! # need this to pull recent txns for specific token or pair
+  timestamp: BigInt!
 
-  # populated from the Swap event
   sender: Bytes!
   from: Bytes! # the EOA that initiated the txn
   amount0In: BigDecimal!
@@ -54,15 +52,8 @@ type Swap @entity {
   to: Bytes!
   logIndex: BigInt
 
-  # derived info
+  # derived
   amountUSD: BigDecimal!
-}
-
-type Sync @entity {
-  id: ID!
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
-  timestamp: BigInt!
 }
 
 type Pair @entity {
@@ -70,10 +61,10 @@ type Pair @entity {
   id : ID!
 
   # Update from sync events
-  reserve0: BigDecimal! #ETH Pooled 800
-  reserve1: BigDecimal! #CONV Pooled 7xxxx
-  token0Price: BigDecimal! #CONV Price in ETH 0.0000001
-  token1Price: BigDecimal! #ETH Price in CONV 8184..
+  reserve0: BigDecimal! #ETH Pooled
+  reserve1: BigDecimal! #CONV Pooled
+  token0Price: BigDecimal! #CONV Price in ETH
+  token1Price: BigDecimal! #ETH Price in CONV
   reserveETH: BigDecimal!
   reserveUSD: BigDecimal!
 }
@@ -82,12 +73,15 @@ type HourData @entity {
   id: ID!
   hour: Int!
 
+  # Snapshot of Pair data
   reserve0: BigDecimal!
   reserve1: BigDecimal!
   token0Price: BigDecimal!
   token1Price: BigDecimal!
   reserveETH: BigDecimal!
   reserveUSD: BigDecimal!
+
+  # volume stats
   hourlyTxn: BigInt!
   hourlyVolumeToken0: BigDecimal! #ETH volume
   hourlyVolumeToken1: BigDecimal! #CONV volume
@@ -95,6 +89,7 @@ type HourData @entity {
 }
 
 type Price @entity {
+  # store ETH-USDT price for tracking
   id: ID!
   ethPriceUSDT: BigDecimal!
   timestamp: BigInt!

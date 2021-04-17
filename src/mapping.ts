@@ -8,7 +8,6 @@ import {
 	Transfer,
 } from "../generated/Contract/Contract";
 import {
-	Sync as SyncEvent,
 	Transaction,
 	Mint as MintEvent,
 	Burn as BurnEvent,
@@ -16,7 +15,7 @@ import {
   Pair,
 } from "../generated/schema";
 
-import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI, getEthPriceUSDT, updateHourData, createNewTransaction} from './helpers';
+import {convertTokenToDecimal, PAIR_ID, ZERO_BD, getEthPriceUSDT, updateHourData, createNewTransaction} from './helpers';
 
 export function handleApproval(event: Approval): void {}
 
@@ -118,23 +117,17 @@ export function handleSwap(event: Swap): void {
 }
 
 export function handleSync(event: Sync): void {
-  let sync = new SyncEvent(event.transaction.hash.toHex())
   let reserve0 = convertTokenToDecimal(event.params.reserve0)
   let reserve1 = convertTokenToDecimal(event.params.reserve1)
-  sync.reserve0 = reserve0
-  sync.reserve1 = reserve1
-  sync.timestamp = event.block.timestamp
-  sync.save()
-  // update Pair
 
-  
+  // update Pair
   let pair = Pair.load(PAIR_ID)
   if (pair === null){
     pair = new Pair(PAIR_ID)
     pair.reserveETH = ZERO_BD
   }
-  pair.reserve0 = sync.reserve0
-  pair.reserve1 = sync.reserve1
+  pair.reserve0 = reserve0
+  pair.reserve1 = reserve1
   pair.token0Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve0.div(pair.reserve1):ZERO_BD
   pair.token1Price = (pair.reserve0.notEqual(ZERO_BD))?pair.reserve1.div(pair.reserve0):ZERO_BD
   let reserveETH: BigDecimal
@@ -144,5 +137,4 @@ export function handleSync(event: Sync): void {
   pair.save()
 }
 
-export function handleTransfer(event: Transfer): void {
-}
+export function handleTransfer(event: Transfer): void {}

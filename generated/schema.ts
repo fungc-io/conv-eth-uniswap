@@ -414,64 +414,6 @@ export class Swap extends Entity {
   }
 }
 
-export class Sync extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id !== null, "Cannot save Sync entity without an ID");
-    assert(
-      id.kind == ValueKind.STRING,
-      "Cannot save Sync entity with non-string ID. " +
-        'Considering using .toHex() to convert the "id" to a string.'
-    );
-    store.set("Sync", id.toString(), this);
-  }
-
-  static load(id: string): Sync | null {
-    return store.get("Sync", id) as Sync | null;
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get reserve0(): BigDecimal {
-    let value = this.get("reserve0");
-    return value.toBigDecimal();
-  }
-
-  set reserve0(value: BigDecimal) {
-    this.set("reserve0", Value.fromBigDecimal(value));
-  }
-
-  get reserve1(): BigDecimal {
-    let value = this.get("reserve1");
-    return value.toBigDecimal();
-  }
-
-  set reserve1(value: BigDecimal) {
-    this.set("reserve1", Value.fromBigDecimal(value));
-  }
-
-  get timestamp(): BigInt {
-    let value = this.get("timestamp");
-    return value.toBigInt();
-  }
-
-  set timestamp(value: BigInt) {
-    this.set("timestamp", Value.fromBigInt(value));
-  }
-}
-
 export class Pair extends Entity {
   constructor(id: string) {
     super();
