@@ -89,3 +89,21 @@ type Sync @entity {
   reserve1: BigDecimal!
   timestamp: BigInt!
 }
+
+type Pair @entity {
+  # Latest stats
+  id : ID!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+}
+
+type HourData @entity {
+  id: ID!
+  hour: Int!
+  reserve0: BigDecimal!
+  reserve1: BigDecimal!
+  token0Price: BigDecimal!
+  token1Price: BigDecimal!
+}

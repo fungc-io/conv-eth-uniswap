@@ -703,3 +703,146 @@ export class Sync extends Entity {
     this.set("timestamp", Value.fromBigInt(value));
   }
 }
+
+export class Pair extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Pair entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Pair entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Pair", id.toString(), this);
+  }
+
+  static load(id: string): Pair | null {
+    return store.get("Pair", id) as Pair | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get reserve0(): BigDecimal {
+    let value = this.get("reserve0");
+    return value.toBigDecimal();
+  }
+
+  set reserve0(value: BigDecimal) {
+    this.set("reserve0", Value.fromBigDecimal(value));
+  }
+
+  get reserve1(): BigDecimal {
+    let value = this.get("reserve1");
+    return value.toBigDecimal();
+  }
+
+  set reserve1(value: BigDecimal) {
+    this.set("reserve1", Value.fromBigDecimal(value));
+  }
+
+  get token0Price(): BigDecimal {
+    let value = this.get("token0Price");
+    return value.toBigDecimal();
+  }
+
+  set token0Price(value: BigDecimal) {
+    this.set("token0Price", Value.fromBigDecimal(value));
+  }
+
+  get token1Price(): BigDecimal {
+    let value = this.get("token1Price");
+    return value.toBigDecimal();
+  }
+
+  set token1Price(value: BigDecimal) {
+    this.set("token1Price", Value.fromBigDecimal(value));
+  }
+}
+
+export class HourData extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save HourData entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save HourData entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("HourData", id.toString(), this);
+  }
+
+  static load(id: string): HourData | null {
+    return store.get("HourData", id) as HourData | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get hour(): i32 {
+    let value = this.get("hour");
+    return value.toI32();
+  }
+
+  set hour(value: i32) {
+    this.set("hour", Value.fromI32(value));
+  }
+
+  get reserve0(): BigDecimal {
+    let value = this.get("reserve0");
+    return value.toBigDecimal();
+  }
+
+  set reserve0(value: BigDecimal) {
+    this.set("reserve0", Value.fromBigDecimal(value));
+  }
+
+  get reserve1(): BigDecimal {
+    let value = this.get("reserve1");
+    return value.toBigDecimal();
+  }
+
+  set reserve1(value: BigDecimal) {
+    this.set("reserve1", Value.fromBigDecimal(value));
+  }
+
+  get token0Price(): BigDecimal {
+    let value = this.get("token0Price");
+    return value.toBigDecimal();
+  }
+
+  set token0Price(value: BigDecimal) {
+    this.set("token0Price", Value.fromBigDecimal(value));
+  }
+
+  get token1Price(): BigDecimal {
+    let value = this.get("token1Price");
+    return value.toBigDecimal();
+  }
+
+  set token1Price(value: BigDecimal) {
+    this.set("token1Price", Value.fromBigDecimal(value));
+  }
+}

@@ -1,4 +1,4 @@
-import { BigInt,BigDecimal } from "@graphprotocol/graph-ts";
+import { BigInt,BigDecimal, ethereum } from "@graphprotocol/graph-ts";
 import {
 	Contract,
 	Approval,
@@ -14,9 +14,11 @@ import {
 	Mint as MintEvent,
 	Burn as BurnEvent,
 	Swap as SwapEvent,
+  Pair,
+  HourData
 } from "../generated/schema";
 
-import {convertTokenToDecimal, PAIR_ID} from './helpers';
+import {convertTokenToDecimal, PAIR_ID, ZERO_BD} from './helpers';
 
 export function handleApproval(event: Approval): void {
 	// Entities can be loaded from the store using a string ID; this ID
@@ -156,11 +158,47 @@ export function handleSwap(event: Swap): void {
 
 export function handleSync(event: Sync): void {
   let sync = new SyncEvent(event.transaction.hash.toHex())
-  sync.reserve0 = convertTokenToDecimal(event.params.reserve0)
-  sync.reserve1 = convertTokenToDecimal(event.params.reserve1)
+  let reserve0 = convertTokenToDecimal(event.params.reserve0)
+  let reserve1 = convertTokenToDecimal(event.params.reserve1)
+  sync.reserve0 = reserve0
+  sync.reserve1 = reserve1
   sync.timestamp = event.block.timestamp
   sync.save()
+  // update Pair
+  let pair = Pair.load(PAIR_ID)
+  if (pair === null){
+    pair = new Pair(PAIR_ID)
+  }
+  pair.reserve0 = sync.reserve0
+  pair.reserve1 = sync.reserve1
+  pair.token0Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve0.div(pair.reserve1):ZERO_BD
+  pair.token1Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve1.div(pair.reserve0):ZERO_BD
+
+  pair.save()
+  updateHourData(event)
 }
 
 export function handleTransfer(event: Transfer): void {
+}
+
+function updateHourData(event: ethereum.Event): HourData{
+  let timestamp = event.block.timestamp.toI32()
+  let hour = timestamp / 3600
+  let hourUnix =  hour * 3600 // round timestamp to hour
+  let hourData = HourData.load(hour.toString())
+  if(hourData === null){
+    hourData = new HourData(hour.toString())
+    hourData.hour = hourUnix
+    hourData.reserve0 = ZERO_BD
+    hourData.reserve1 = ZERO_BD
+    hourData.token0Price = ZERO_BD
+    hourData.token1Price = ZERO_BD
+  }
+  let pair = Pair.load(PAIR_ID)
+  hourData.reserve0 = pair.reserve0
+  hourData.reserve1 = pair.reserve1
+  hourData.token0Price = pair.token0Price
+  hourData.token1Price = pair.token1Price
+  hourData.save()
+  return hourData as HourData
 }
