@@ -644,6 +644,15 @@ export class Swap extends Entity {
       this.set("logIndex", Value.fromBigInt(value as BigInt));
     }
   }
+
+  get amountUSD(): BigDecimal {
+    let value = this.get("amountUSD");
+    return value.toBigDecimal();
+  }
+
+  set amountUSD(value: BigDecimal) {
+    this.set("amountUSD", Value.fromBigDecimal(value));
+  }
 }
 
 export class Sync extends Entity {
@@ -769,6 +778,15 @@ export class Pair extends Entity {
   set token1Price(value: BigDecimal) {
     this.set("token1Price", Value.fromBigDecimal(value));
   }
+
+  get reserveETH(): BigDecimal {
+    let value = this.get("reserveETH");
+    return value.toBigDecimal();
+  }
+
+  set reserveETH(value: BigDecimal) {
+    this.set("reserveETH", Value.fromBigDecimal(value));
+  }
 }
 
 export class HourData extends Entity {
@@ -846,6 +864,15 @@ export class HourData extends Entity {
     this.set("token1Price", Value.fromBigDecimal(value));
   }
 
+  get reserveETH(): BigDecimal {
+    let value = this.get("reserveETH");
+    return value.toBigDecimal();
+  }
+
+  set reserveETH(value: BigDecimal) {
+    this.set("reserveETH", Value.fromBigDecimal(value));
+  }
+
   get hourlyTxn(): BigInt {
     let value = this.get("hourlyTxn");
     return value.toBigInt();
@@ -871,5 +898,63 @@ export class HourData extends Entity {
 
   set hourlyVolumeToken1(value: BigDecimal) {
     this.set("hourlyVolumeToken1", Value.fromBigDecimal(value));
+  }
+
+  get hourlyVolumeUSD(): BigDecimal {
+    let value = this.get("hourlyVolumeUSD");
+    return value.toBigDecimal();
+  }
+
+  set hourlyVolumeUSD(value: BigDecimal) {
+    this.set("hourlyVolumeUSD", Value.fromBigDecimal(value));
+  }
+}
+
+export class Price extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Price entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Price entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Price", id.toString(), this);
+  }
+
+  static load(id: string): Price | null {
+    return store.get("Price", id) as Price | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get ethPriceUSDT(): BigDecimal {
+    let value = this.get("ethPriceUSDT");
+    return value.toBigDecimal();
+  }
+
+  set ethPriceUSDT(value: BigDecimal) {
+    this.set("ethPriceUSDT", Value.fromBigDecimal(value));
+  }
+
+  get timestamp(): BigInt {
+    let value = this.get("timestamp");
+    return value.toBigInt();
+  }
+
+  set timestamp(value: BigInt) {
+    this.set("timestamp", Value.fromBigInt(value));
   }
 }

@@ -18,7 +18,7 @@ import {
   HourData
 } from "../generated/schema";
 
-import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI} from './helpers';
+import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI, getEthPriceUSDT} from './helpers';
 
 export function handleApproval(event: Approval): void {
 	// Entities can be loaded from the store using a string ID; this ID
@@ -128,6 +128,7 @@ export function handleSwap(event: Swap): void {
   let amount0Total = amount0Out.plus(amount0In)
   let amount1Total = amount1Out.plus(amount1In)
   let transaction = Transaction.load(event.transaction.hash.toHexString())
+  let trackedAmountUSD = amount0Total.times(getEthPriceUSDT())
   if (transaction === null) {
     transaction = new Transaction(event.transaction.hash.toHexString())
     transaction.blockNumber = event.block.number
@@ -153,6 +154,7 @@ export function handleSwap(event: Swap): void {
   swap.to = event.params.to
   swap.from = event.transaction.from
   swap.logIndex = event.logIndex
+  swap.amountUSD = trackedAmountUSD
   swap.save()
   swaps.push(swap.id)
   transaction.swaps = swaps
@@ -161,7 +163,6 @@ export function handleSwap(event: Swap): void {
   let hourData = updateHourData(event)
   hourData.hourlyVolumeToken0 = hourData.hourlyVolumeToken0.plus(amount0Total)
   hourData.hourlyVolumeToken1 = hourData.hourlyVolumeToken1.plus(amount1Total)
-  let trackedAmountUSD = ZERO_BD
   hourData.hourlyVolumeUSD = hourData.hourlyVolumeUSD.plus(trackedAmountUSD)
   hourData.save()
   

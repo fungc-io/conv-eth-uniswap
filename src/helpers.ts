@@ -1,4 +1,5 @@
 import { BigInt,BigDecimal } from "@graphprotocol/graph-ts";
+import { Price } from "../generated/schema";
 
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
@@ -10,4 +11,9 @@ export let PAIR_ID = "0x06ad23978f67ae8cc76c54b74993b31a816bac2b"
 
 export function convertTokenToDecimal(tokenAmount:BigInt):BigDecimal{
   return tokenAmount.toBigDecimal().div(BD_18)
+}
+export function getEthPriceUSDT():BigDecimal{
+    let price = Price.load('1')
+    if(price===null) return ZERO_BD
+    else return price.ethPriceUSDT
 }

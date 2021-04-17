@@ -80,7 +80,7 @@ type Swap @entity {
   logIndex: BigInt
 
   # derived info
-  # amountUSD: BigDecimal!
+  amountUSD: BigDecimal!
 }
 
 type Sync @entity {
@@ -93,20 +93,32 @@ type Sync @entity {
 type Pair @entity {
   # Latest stats
   id : ID!
-  reserve0: BigDecimal!
-  reserve1: BigDecimal!
-  token0Price: BigDecimal!
-  token1Price: BigDecimal!
+
+  # Update from sync events
+  reserve0: BigDecimal! #ETH Pooled 800
+  reserve1: BigDecimal! #CONV Pooled 7xxxx
+  token0Price: BigDecimal! #CONV Price in ETH 0.0000001
+  token1Price: BigDecimal! #ETH Price in CONV 8184..
+  reserveETH: BigDecimal!
 }
 
 type HourData @entity {
   id: ID!
   hour: Int!
+
   reserve0: BigDecimal!
   reserve1: BigDecimal!
   token0Price: BigDecimal!
   token1Price: BigDecimal!
+  reserveETH: BigDecimal!
   hourlyTxn: BigInt!
-  hourlyVolumeToken0: BigDecimal!
-  hourlyVolumeToken1: BigDecimal! 
+  hourlyVolumeToken0: BigDecimal! #ETH volume
+  hourlyVolumeToken1: BigDecimal! #CONV volume
+  hourlyVolumeUSD: BigDecimal!
+}
+
+type Price @entity {
+  id: ID!
+  ethPriceUSDT: BigDecimal!
+  timestamp: BigInt!
 }
