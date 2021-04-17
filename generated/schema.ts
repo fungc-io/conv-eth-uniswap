@@ -845,4 +845,31 @@ export class HourData extends Entity {
   set token1Price(value: BigDecimal) {
     this.set("token1Price", Value.fromBigDecimal(value));
   }
+
+  get hourlyTxn(): BigInt {
+    let value = this.get("hourlyTxn");
+    return value.toBigInt();
+  }
+
+  set hourlyTxn(value: BigInt) {
+    this.set("hourlyTxn", Value.fromBigInt(value));
+  }
+
+  get hourlyVolumeToken0(): BigDecimal {
+    let value = this.get("hourlyVolumeToken0");
+    return value.toBigDecimal();
+  }
+
+  set hourlyVolumeToken0(value: BigDecimal) {
+    this.set("hourlyVolumeToken0", Value.fromBigDecimal(value));
+  }
+
+  get hourlyVolumeToken1(): BigDecimal {
+    let value = this.get("hourlyVolumeToken1");
+    return value.toBigDecimal();
+  }
+
+  set hourlyVolumeToken1(value: BigDecimal) {
+    this.set("hourlyVolumeToken1", Value.fromBigDecimal(value));
+  }
 }

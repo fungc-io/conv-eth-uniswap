@@ -106,4 +106,7 @@ type HourData @entity {
   reserve1: BigDecimal!
   token0Price: BigDecimal!
   token1Price: BigDecimal!
+  hourlyTxn: BigInt!
+  hourlyVolumeToken0: BigDecimal!
+  hourlyVolumeToken1: BigDecimal! 
 }

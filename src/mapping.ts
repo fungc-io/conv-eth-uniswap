@@ -18,7 +18,7 @@ import {
   HourData
 } from "../generated/schema";
 
-import {convertTokenToDecimal, PAIR_ID, ZERO_BD} from './helpers';
+import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI} from './helpers';
 
 export function handleApproval(event: Approval): void {
 	// Entities can be loaded from the store using a string ID; this ID
@@ -86,7 +86,7 @@ export function handleApproval(event: Approval): void {
 export function handleBurn(event: Burn): void {
   let amount0 = convertTokenToDecimal(event.params.amount0)
   let amount1 = convertTokenToDecimal(event.params.amount1)
-  
+  updateHourData(event)
 }
 
 export function handleMint(event: Mint): void {
@@ -117,6 +117,7 @@ export function handleMint(event: Mint): void {
   transaction.mints = mints
   transaction.save()
   mint.save()
+  updateHourData(event)
 }
 
 export function handleSwap(event: Swap): void {
@@ -124,6 +125,8 @@ export function handleSwap(event: Swap): void {
   let amount1In = convertTokenToDecimal(event.params.amount1In)
   let amount0Out = convertTokenToDecimal(event.params.amount0Out)
   let amount1Out = convertTokenToDecimal(event.params.amount1Out)
+  let amount0Total = amount0Out.plus(amount0In)
+  let amount1Total = amount1Out.plus(amount1In)
   let transaction = Transaction.load(event.transaction.hash.toHexString())
   if (transaction === null) {
     transaction = new Transaction(event.transaction.hash.toHexString())
@@ -154,6 +157,11 @@ export function handleSwap(event: Swap): void {
   swaps.push(swap.id)
   transaction.swaps = swaps
   transaction.save()
+  
+  let hourData = updateHourData(event)
+  hourData.hourlyVolumeToken0 = hourData.hourlyVolumeToken0.plus(amount0Total)
+  hourData.hourlyVolumeToken1 = hourData.hourlyVolumeToken1.plus(amount1Total)
+  hourData.save()
 }
 
 export function handleSync(event: Sync): void {
@@ -175,7 +183,6 @@ export function handleSync(event: Sync): void {
   pair.token1Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve1.div(pair.reserve0):ZERO_BD
 
   pair.save()
-  updateHourData(event)
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -193,12 +200,16 @@ function updateHourData(event: ethereum.Event): HourData{
     hourData.reserve1 = ZERO_BD
     hourData.token0Price = ZERO_BD
     hourData.token1Price = ZERO_BD
+    hourData.hourlyTxn = ZERO_BI
+    hourData.hourlyVolumeToken0 = ZERO_BD
+    hourData.hourlyVolumeToken1 = ZERO_BD
   }
   let pair = Pair.load(PAIR_ID)
   hourData.reserve0 = pair.reserve0
   hourData.reserve1 = pair.reserve1
   hourData.token0Price = pair.token0Price
   hourData.token1Price = pair.token1Price
+  hourData.hourlyTxn = hourData.hourlyTxn.plus(ONE_BI)
   hourData.save()
   return hourData as HourData
 }
