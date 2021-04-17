@@ -6,7 +6,6 @@ import {convertTokenToDecimal, ZERO_BD, ZERO_BI} from './helpers';
 import { BigDecimal, log } from '@graphprotocol/graph-ts'
 
 export function handleSync(event: Sync): void{
-    log.debug("ETHUSTD-SYNC: reserveETH {} reserveUSDT {}",[event.params.reserve0.toString(),event.params.reserve1.toString()])
     let reserveEth = convertTokenToDecimal(event.params.reserve0)
     let reserveUSDT = event.params.reserve1.toBigDecimal().div(BigDecimal.fromString("1000000"))
     let price = Price.load('1')

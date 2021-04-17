@@ -100,6 +100,7 @@ type Pair @entity {
   token0Price: BigDecimal! #CONV Price in ETH 0.0000001
   token1Price: BigDecimal! #ETH Price in CONV 8184..
   reserveETH: BigDecimal!
+  reserveUSD: BigDecimal!
 }
 
 type HourData @entity {
@@ -111,6 +112,7 @@ type HourData @entity {
   token0Price: BigDecimal!
   token1Price: BigDecimal!
   reserveETH: BigDecimal!
+  reserveUSD: BigDecimal!
   hourlyTxn: BigInt!
   hourlyVolumeToken0: BigDecimal! #ETH volume
   hourlyVolumeToken1: BigDecimal! #CONV volume

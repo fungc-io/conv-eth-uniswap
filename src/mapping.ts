@@ -1,6 +1,5 @@
-import { BigInt,BigDecimal, ethereum } from "@graphprotocol/graph-ts";
+import { BigInt,BigDecimal} from "@graphprotocol/graph-ts";
 import {
-	Contract,
 	Approval,
 	Burn,
 	Mint,
@@ -15,73 +14,11 @@ import {
 	Burn as BurnEvent,
 	Swap as SwapEvent,
   Pair,
-  HourData
 } from "../generated/schema";
 
-import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI, getEthPriceUSDT} from './helpers';
+import {convertTokenToDecimal, PAIR_ID, ZERO_BD, ZERO_BI, ONE_BI, getEthPriceUSDT, updateHourData, createNewTransaction} from './helpers';
 
-export function handleApproval(event: Approval): void {
-	// Entities can be loaded from the store using a string ID; this ID
-	// needs to be unique across all entities of the same type
-	// let entity = ExampleEntity.load(event.transaction.from.toHex());
-
-	// // Entities only exist after they have been saved to the store;
-	// // `null` checks allow to create entities on demand
-	// if (entity == null) {
-	// 	entity = new ExampleEntity(event.transaction.from.toHex());
-
-	// 	// Entity fields can be set using simple assignments
-	// 	entity.count = BigInt.fromI32(0);
-	// }
-
-	// // BigInt and BigDecimal math are supported
-	// entity.count = entity.count + BigInt.fromI32(1);
-
-	// // Entity fields can be set based on event parameters
-	// entity.owner = event.params.owner;
-	// entity.spender = event.params.spender;
-
-	// // Entities can be written to the store with `.save()`
-	// entity.save();
-
-	// Note: If a handler doesn't require existing field values, it is faster
-	// _not_ to load the entity from the store. Instead, create it fresh with
-	// `new Entity(...)`, set the fields that should be updated and save the
-	// entity back to the store. Fields that were not set or unset remain
-	// unchanged, allowing for partial updates to be applied.
-
-	// It is also possible to access smart contracts from mappings. For
-	// example, the contract that has emitted the event can be connected to
-	// with:
-	//
-	// let contract = Contract.bind(event.address)
-	//
-	// The following functions can then be called on this contract to access
-	// state variables and other data:
-	//
-	// - contract.DOMAIN_SEPARATOR(...)
-	// - contract.MINIMUM_LIQUIDITY(...)
-	// - contract.PERMIT_TYPEHASH(...)
-	// - contract.allowance(...)
-	// - contract.approve(...)
-	// - contract.balanceOf(...)
-	// - contract.burn(...)
-	// - contract.decimals(...)
-	// - contract.factory(...)
-	// - contract.getReserves(...)
-	// - contract.kLast(...)
-	// - contract.mint(...)
-	// - contract.name(...)
-	// - contract.nonces(...)
-	// - contract.price0CumulativeLast(...)
-	// - contract.price1CumulativeLast(...)
-	// - contract.symbol(...)
-	// - contract.token0(...)
-	// - contract.token1(...)
-	// - contract.totalSupply(...)
-	// - contract.transfer(...)
-	// - contract.transferFrom(...)
-}
+export function handleApproval(event: Approval): void {}
 
 export function handleBurn(event: Burn): void {
   let amount0 = convertTokenToDecimal(event.params.amount0)
@@ -94,14 +31,9 @@ export function handleMint(event: Mint): void {
   let amount1 = convertTokenToDecimal(event.params.amount1)
   let sender = event.params.sender
   let transaction = Transaction.load(event.transaction.hash.toHexString())
-  if (transaction === null) {
-    transaction = new Transaction(event.transaction.hash.toHexString())
-    transaction.blockNumber = event.block.number
-    transaction.timestamp = event.block.timestamp
-    transaction.swaps = []
-    transaction.mints = []
-    transaction.burns = []
-  }
+  let pair = Pair.load(PAIR_ID)
+  let amountUSD = amount1.times(pair.token0Price).plus(amount0).times(getEthPriceUSDT())
+  if (transaction === null) transaction = createNewTransaction(event)
   let mints = transaction.mints
   let mint = new MintEvent(event.transaction.hash
     .toHexString()
@@ -113,6 +45,7 @@ export function handleMint(event: Mint): void {
   mint.logIndex = event.logIndex
   mint.transaction = transaction.id
   mint.timestamp = transaction.timestamp
+  mint.amountUSD = amountUSD
   mints.push(mint.id)
   transaction.mints = mints
   transaction.save()
@@ -127,16 +60,11 @@ export function handleSwap(event: Swap): void {
   let amount1Out = convertTokenToDecimal(event.params.amount1Out)
   let amount0Total = amount0Out.plus(amount0In)
   let amount1Total = amount1Out.plus(amount1In)
-  let transaction = Transaction.load(event.transaction.hash.toHexString())
   let trackedAmountUSD = amount0Total.times(getEthPriceUSDT())
-  if (transaction === null) {
-    transaction = new Transaction(event.transaction.hash.toHexString())
-    transaction.blockNumber = event.block.number
-    transaction.timestamp = event.block.timestamp
-    transaction.swaps = []
-    transaction.mints = []
-    transaction.burns = []
-  }
+
+  let transaction = Transaction.load(event.transaction.hash.toHexString())
+  if (transaction === null) transaction = createNewTransaction(event)
+
   let swaps = transaction.swaps
   let swap = new SwapEvent(
     event.transaction.hash
@@ -191,38 +119,9 @@ export function handleSync(event: Sync): void {
   let reserveETH: BigDecimal
   reserveETH = reserve1.times(pair.token0Price).plus(pair.reserve0)
   pair.reserveETH = reserveETH
+  pair.reserveUSD = pair.reserveETH.times(getEthPriceUSDT())
   pair.save()
 }
 
 export function handleTransfer(event: Transfer): void {
 }
-
-function updateHourData(event: ethereum.Event): HourData{
-  let timestamp = event.block.timestamp.toI32()
-  let hour = timestamp / 3600
-  let hourUnix =  hour * 3600 // round timestamp to hour
-  let hourData = HourData.load(hour.toString())
-  if(hourData === null){
-    hourData = new HourData(hour.toString())
-    hourData.hour = hourUnix
-    hourData.reserve0 = ZERO_BD
-    hourData.reserve1 = ZERO_BD
-    hourData.token0Price = ZERO_BD
-    hourData.token1Price = ZERO_BD
-    hourData.reserveETH = ZERO_BD
-    hourData.hourlyTxn = ZERO_BI
-    hourData.hourlyVolumeToken0 = ZERO_BD
-    hourData.hourlyVolumeToken1 = ZERO_BD
-    hourData.hourlyVolumeUSD = ZERO_BD
-  }
-  let pair = Pair.load(PAIR_ID)
-  hourData.reserve0 = pair.reserve0
-  hourData.reserve1 = pair.reserve1
-  hourData.token0Price = pair.token0Price
-  hourData.token1Price = pair.token1Price
-  hourData.reserveETH = pair.reserveETH
-  hourData.hourlyTxn = hourData.hourlyTxn.plus(ONE_BI)
-  hourData.save()
-  return hourData as HourData
-}
-

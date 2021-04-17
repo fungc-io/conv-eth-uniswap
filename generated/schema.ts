@@ -787,6 +787,15 @@ export class Pair extends Entity {
   set reserveETH(value: BigDecimal) {
     this.set("reserveETH", Value.fromBigDecimal(value));
   }
+
+  get reserveUSD(): BigDecimal {
+    let value = this.get("reserveUSD");
+    return value.toBigDecimal();
+  }
+
+  set reserveUSD(value: BigDecimal) {
+    this.set("reserveUSD", Value.fromBigDecimal(value));
+  }
 }
 
 export class HourData extends Entity {
@@ -871,6 +880,15 @@ export class HourData extends Entity {
 
   set reserveETH(value: BigDecimal) {
     this.set("reserveETH", Value.fromBigDecimal(value));
+  }
+
+  get reserveUSD(): BigDecimal {
+    let value = this.get("reserveUSD");
+    return value.toBigDecimal();
+  }
+
+  set reserveUSD(value: BigDecimal) {
+    this.set("reserveUSD", Value.fromBigDecimal(value));
   }
 
   get hourlyTxn(): BigInt {
