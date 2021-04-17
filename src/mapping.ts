@@ -157,11 +157,14 @@ export function handleSwap(event: Swap): void {
   swaps.push(swap.id)
   transaction.swaps = swaps
   transaction.save()
-  
+
   let hourData = updateHourData(event)
   hourData.hourlyVolumeToken0 = hourData.hourlyVolumeToken0.plus(amount0Total)
   hourData.hourlyVolumeToken1 = hourData.hourlyVolumeToken1.plus(amount1Total)
+  let trackedAmountUSD = ZERO_BD
+  hourData.hourlyVolumeUSD = hourData.hourlyVolumeUSD.plus(trackedAmountUSD)
   hourData.save()
+  
 }
 
 export function handleSync(event: Sync): void {
@@ -173,15 +176,20 @@ export function handleSync(event: Sync): void {
   sync.timestamp = event.block.timestamp
   sync.save()
   // update Pair
+
+  
   let pair = Pair.load(PAIR_ID)
   if (pair === null){
     pair = new Pair(PAIR_ID)
+    pair.reserveETH = ZERO_BD
   }
   pair.reserve0 = sync.reserve0
   pair.reserve1 = sync.reserve1
   pair.token0Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve0.div(pair.reserve1):ZERO_BD
-  pair.token1Price = (pair.reserve1.notEqual(ZERO_BD))?pair.reserve1.div(pair.reserve0):ZERO_BD
-
+  pair.token1Price = (pair.reserve0.notEqual(ZERO_BD))?pair.reserve1.div(pair.reserve0):ZERO_BD
+  let reserveETH: BigDecimal
+  reserveETH = reserve1.times(pair.token0Price).plus(pair.reserve0)
+  pair.reserveETH = reserveETH
   pair.save()
 }
 
@@ -200,16 +208,20 @@ function updateHourData(event: ethereum.Event): HourData{
     hourData.reserve1 = ZERO_BD
     hourData.token0Price = ZERO_BD
     hourData.token1Price = ZERO_BD
+    hourData.reserveETH = ZERO_BD
     hourData.hourlyTxn = ZERO_BI
     hourData.hourlyVolumeToken0 = ZERO_BD
     hourData.hourlyVolumeToken1 = ZERO_BD
+    hourData.hourlyVolumeUSD = ZERO_BD
   }
   let pair = Pair.load(PAIR_ID)
   hourData.reserve0 = pair.reserve0
   hourData.reserve1 = pair.reserve1
   hourData.token0Price = pair.token0Price
   hourData.token1Price = pair.token1Price
+  hourData.reserveETH = pair.reserveETH
   hourData.hourlyTxn = hourData.hourlyTxn.plus(ONE_BI)
   hourData.save()
   return hourData as HourData
 }
+
