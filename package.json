@@ -3,6 +3,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
+    "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx",
     "build": "graph build",
     "deploy": "graph deploy --debug --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ fungc-io/conv-eth-uniswap",
     "create-local": "graph create --node http://localhost:8020/ fungc-io/conv-eth-uniswap",

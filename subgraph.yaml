@@ -24,8 +24,8 @@ dataSources:
         - name: Contract
           file: ./abis/Contract.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
+        # - event: Approval(indexed address,indexed address,uint256)
+        #   handler: handleApproval
         - event: Burn(indexed address,uint256,uint256,indexed address)
           handler: handleBurn
         - event: Mint(indexed address,uint256,uint256)
@@ -34,8 +34,8 @@ dataSources:
           handler: handleSwap
         - event: Sync(uint112,uint112)
           handler: handleSync
-        - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer
+        # - event: Transfer(indexed address,indexed address,uint256)
+        #   handler: handleTransfer
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: ETHUSDT

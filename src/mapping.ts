@@ -1,13 +1,13 @@
 // handle events from ETH-CONV Pool contract
 
-import { BigInt, BigDecimal } from "@graphprotocol/graph-ts";
+import { BigInt } from "@graphprotocol/graph-ts";
 import {
-	Approval,
+	// Approval,
 	Burn,
 	Mint,
 	Swap,
 	Sync,
-	Transfer,
+	// Transfer,
 } from "../generated/Contract/Contract";
 import {
 	Transaction,
@@ -26,7 +26,7 @@ import {
 	createNewTransaction,
 } from "./helpers";
 
-export function handleApproval(event: Approval): void {}
+
 
 export function handleBurn(event: Burn): void {
 	let amount0 = convertTokenToDecimal(event.params.amount0);
@@ -157,11 +157,12 @@ export function handleSync(event: Sync): void {
 	pair.token1Price = pair.reserve0.notEqual(ZERO_BD)
 		? pair.reserve1.div(pair.reserve0)
 		: ZERO_BD;
-	let reserveETH: BigDecimal;
-	reserveETH = reserve1.times(pair.token0Price).plus(pair.reserve0);
+	let reserveETH = reserve1.times(pair.token0Price).plus(pair.reserve0);
 	pair.reserveETH = reserveETH;
 	pair.reserveUSD = pair.reserveETH.times(getEthPriceUSDT());
 	pair.save();
 }
 
-export function handleTransfer(event: Transfer): void {}
+// Unhandled eventss
+// export function handleApproval(event: Approval): void {}
+// export function handleTransfer(event: Transfer): void {}
