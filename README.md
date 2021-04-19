@@ -1,4 +1,4 @@
-# Subgraph to index data from ETH/CONV pool on uniswap
+# Subgraph to index data from ETH/CONV pool
 
 ## Generate AssemblyScript types from the GraphQL schema and the contract ABIs
 
