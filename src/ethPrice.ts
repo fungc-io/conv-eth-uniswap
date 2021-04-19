@@ -1,4 +1,5 @@
 // update ETH-USDT pricing when 'Sync' events happen in ETH-USDT pool
+// TODO: Use average of multiple stablecoins
 
 import { Sync } from "../generated/ETHUSDT/EthUsdt";
 import { Price } from "../generated/schema";

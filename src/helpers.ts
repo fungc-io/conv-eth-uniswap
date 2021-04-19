@@ -10,6 +10,7 @@ export let PAIR_ID = "0x06ad23978f67ae8cc76c54b74993b31a816bac2b";
 
 export function convertTokenToDecimal(tokenAmount: BigInt): BigDecimal {
 	return tokenAmount.toBigDecimal().div(BD_E18);
+	// TODO: Decimals can be provided by parameters, because tokens may have different decimals
 }
 
 export function getEthPriceUSDT(): BigDecimal {
